@@ -1,19 +1,25 @@
 {
-  "name": "exercise",
+  "name": "ghost-cursor",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Remote ghost cursor project",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.22.1",
+    "socket.io": "^4.8.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/milaslavcheva/webrtc-project.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-  "dependencies": {
-    "express": "^5.2.1",
-    "simple-peer": "^9.11.1",
-    "socket.io": "^4.8.3"
-  }
+  "bugs": {
+    "url": "https://github.com/milaslavcheva/webrtc-project/issues"
+  },
+  "homepage": "https://github.com/milaslavcheva/webrtc-project#readme"
 }
