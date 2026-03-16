@@ -3,24 +3,24 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
-// Serve everything inside the "public" folder
 app.use(express.static('public'));
 
-io.on('connection', (socket) => {
-    console.log('New connection:', socket.id);
+io.on('connection', socket => {
+    console.log('Client connected:', socket.id);
 
-    // When phone sends movement
-    socket.on('move', (data) => {
-        console.log('Received move from phone:', data);
+    socket.on('phone-connected', desktopId => {
+        console.log('Phone connected to desktop:', desktopId);
+        io.to(desktopId).emit('phone-connected');
+    });
 
-        // Send movement to all other clients (desktop)
-        socket.broadcast.emit('move', data);
+    socket.on('move', data => {
+        const desktopId = data.desktopId;
+        if (desktopId) {
+            io.to(desktopId).emit('move', data);
+        }
     });
 });
 
-const PORT = 3000;
-
-// IMPORTANT: listen on 0.0.0.0 so phone can connect
-http.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
+http.listen(3000, '0.0.0.0', () => {
+    console.log('Server running on port 3000');
 });

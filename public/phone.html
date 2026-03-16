@@ -4,28 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Phone Controller</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background: #222;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        #coords {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 18px;
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body>
+<body class="phone">
     <div id="coords">x: 0, y: 0</div>
 
     <script src="/socket.io/socket.io.js"></script>
