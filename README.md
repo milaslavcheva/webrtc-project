@@ -1,340 +1,465 @@
 # Remote Cursor Ghost Project
+# Project Description
 
-## Project Description
+This project creates a ghost cursor that follows the user's mouse movement and leaves a magical fading trail behind it. The trail is smooth and dynamic, and the project supports connecting a phone to see the ghost in real-time.
 
-The goal of this project is to create a ghost cursor that follows the user's mouse movement and leaves a temporary trail behind it. The trail fades over time to create a magical visual effect. The project is built using HTML, CSS, JavaScript, and Node.js.
-
----
+Technologies used: HTML, CSS, JavaScript, Node.js, Express, Socket.io, Simple-Peer.
 
 # Week 1
-
 ## What I did
 
-During the first week I mainly focused on setting up the project and creating the basic ghost cursor movement.
+In Week 1, I set up the project structure, installed dependencies, and implemented the basic ghost cursor movement on the desktop.
 
 ### Project setup
 
-First I created the main project structure:
+Project structure:
 
-* `server.js`
-* `package.json`
-* `README.md`
-* `public/` folder
+>server.js
+package.json
+package-lock.json
+README.md
+public/
+  ├─ index.html
+  ├─ desktop.js
+  ├─ phone.html
+  ├─ phone.js
+  └─ ghost.png
 
-Inside the `public` folder I created:
+Installed dependencies:
 
-* `index.html`
-* `desktop.js`
-* `phone.js`
+* npm install express socket.io simple-peer
 
-The `public` folder contains the files that are sent to the browser.
+### Libraries installed:
 
-### Installing dependencies
++ express - simple web server
 
-I installed the required dependencies using npm:
++ socket.io - real-time communication between devices
 
-```bash id="y5fj9g"
-npm install express socket.io simple-peer
-```
++ simple-peer - manage peer-to-peer WebRTC connections
 
-This installed the following libraries:
-
-* **express** – used to create a simple web server
-* **socket.io** – allows communication between devices
-* **simple-peer** – used later for peer-to-peer connections
-
-This command also generated the `node_modules` folder and the `package-lock.json` file.
-
-### Creating the basic HTML page
-
-I created the main HTML structure in `index.html`.
-
-```html id="5h17i8"
+### Desktop HTML (index.html)
 <canvas id="trailCanvas"></canvas>
 <img id="ghost" src="ghost.png" alt="Ghost">
 <script src="/desktop.js"></script>
-```
 
 Explanation:
 
-* The **canvas** element is used to draw the ghost trail.
-* The **image** element represents the ghost cursor.
-* The JavaScript file controls the movement and trail effects.
++ <canvas> – used to draw the ghost trail
 
-### Styling the page
++ <img> – represents the ghost cursor
 
-I added CSS to control the layout and positioning of the ghost and canvas.
++ <script> – loads the desktop JavaScript logic
 
-```css id="faj3q6"
-body {
-    margin: 0;
-    overflow: hidden;
-    background: black;
+### CSS for layout:
+
+>body {
+    margin: 0; /* remove default spacing */
+    overflow: hidden; /* prevent scrollbars */
+    background: black; /* dark background */
 }
 
-#ghost {
-    position: absolute;
+>#ghost {
+    position: absolute; /* allows free movement */
     width: 50px;
     height: 50px;
-    pointer-events: none;
+    pointer-events: none; /* allows clicking through the ghost */
 }
 
-#trailCanvas {
+>#trailCanvas {
     position: absolute;
     top: 0;
     left: 0;
-    pointer-events: none;
+    pointer-events: none; /* ignore mouse input */
 }
-```
+### Desktop JS (desktop.js) – Week 1
 
-Explanation:
+- Step 1: Select ghost element
 
-* `margin: 0` removes default browser spacing.
-* `overflow: hidden` prevents scrollbars when the ghost moves.
-* `background: black` creates the dark background.
-* `position: absolute` allows the ghost to move anywhere on the screen.
-* `pointer-events: none` ensures the ghost does not block mouse input.
-
-### Implementing ghost movement
-
-In `desktop.js` I implemented basic cursor tracking.
-
-```javascript id="19z80q"
 const ghost = document.getElementById('ghost');
-```
 
-This selects the ghost element from the HTML so it can be moved using JavaScript.
+Selects the ghost image from the HTML.
 
-Then I added a mouse movement listener:
+- Step 2: Move ghost with mouse
 
-```javascript id="y0b41g"
 document.addEventListener('mousemove', (e) => {
     ghost.style.transform = `translate(${e.clientX - 25}px, ${e.clientY - 25}px)`;
 });
-```
 
-Explanation:
+Listens to mouse movement
 
-* `mousemove` listens for mouse movement.
-* `e.clientX` and `e.clientY` give the cursor position.
-* The ghost image is moved using a CSS transform.
-* `-25` centers the ghost image on the cursor.
+e.clientX / e.clientY – cursor coordinates
 
-After implementing this, I tested the page and confirmed that the ghost moves correctly on the screen.
+-25 centers the 50px ghost image
 
-### Results of Week 1
+Uses transform for smoother animation
 
-At the end of week 1:
+### Results Week 1:
 
-* Installed dependencies: `express`, `socket.io`, `simple-peer`
-* Made a basic ghost appear on the desktop when moving the mouse
-* Tested that the ghost moves correctly on screen
+- Ghost moves correctly on desktop
+- Basic structure and dependencies installed
 
----
+## AI Usage:
 
-## AI Usage
+- Suggested project structure
+- Helped write initial mouse movement code
+- Explained how CSS affects ghost positioning
 
-AI was used mainly as a support tool during development.
+## Plan for Week 2:
 
-I used AI to:
+- Implement fading trail
+- Improve visual effects
+- Start phone connection
 
-* understand how to structure the project properly
-* get help writing the basic cursor movement code
-* learn how JavaScript can track mouse movement
-* get suggestions for implementing the ghost trail effect
 
-I also modified the AI-generated code myself:
-
-* adjusted trail length and speed
-* changed the glow effect to make it look more magical
-* made sure the ghost stays centered on the cursor
-
-AI helped with suggestions, but I still had to test and adjust the code manually.
-
----
-
-## Plan for Next Week
-
-For the next stage of the project I plan to:
-
-* improve the trail effect so it looks smoother and fades faster
-* work on the phone version so another device can see the ghost
-* test interaction between multiple devices
-
----
 
 # Week 2
-
 ## What I did
 
-During the second week I focused on improving the visual effect of the ghost by implementing a fading trail system.
+In Week 2, I implemented the magical fading trail and started building the phone-side ghost.
 
 ### Canvas setup
 
-First I selected the canvas element and the drawing context.
-
-```javascript id="3mlc3a"
+```javascript
 const canvas = document.getElementById('trailCanvas');
 const ctx = canvas.getContext('2d');
-```
 
-Explanation:
-
-* The canvas element is used for drawing graphics.
-* `getContext('2d')` provides the drawing tools for the canvas.
-
-### Canvas size
-
-```javascript id="v9hcld"
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-```
 
-This makes the canvas the same size as the browser window so the trail can appear anywhere on the screen.
-
-I also added a resize listener so the canvas updates when the window size changes.
-
-```javascript id="g1ep0l"
 window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 });
 ```
 
-### Trail data structure
+### Explanation:
 
-To store the previous cursor positions I created an array.
+Get canvas and drawing context
 
-```javascript id="g4wclc"
+Set canvas size to window dimensions
+
+Update canvas size dynamically on window resize
+
+- Trail data structure
+
+```javascript
+let trail = [];
+const maxTrail = 80; // maximum points
+const segmentLength = 1; // minimum distance between points
+const fadeSpeed = 0.05; // fading rate
+```
+trail stores cursor history
+
+maxTrail – limits trail length
+
+segmentLength – avoids points being too close
+
+fadeSpeed – opacity decrease per frame
+
++ Add trail points on mouse move
+```javascript
+document.addEventListener('mousemove', (e) => {
+    ghost.style.transform = `translate(${e.clientX - 25}px, ${e.clientY - 25}px)`;
+
+    const last = trail[trail.length - 1];
+    if (!last || Math.hypot(e.clientX - last.x, e.clientY - last.y) > segmentLength) {
+        trail.push({ x: e.clientX, y: e.clientY, alpha: 1 });
+    }
+
+    if (trail.length > maxTrail) {
+        trail.shift();
+    }
+});
+```
+
+Moves ghost (as in Week 1)
+
+Adds new trail point if distance > segmentLength
+
+Removes oldest point if trail.length > maxTrail
+
++ Draw the trail
+```javascript
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < trail.length; i++) {
+        const t = trail[i];
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, 12, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 255, 255, ${t.alpha})`;
+        ctx.shadowColor = 'cyan';
+        ctx.shadowBlur = 20;
+        ctx.fill();
+
+        t.alpha -= 0.02;
+        if (t.alpha <= 0) {
+            trail.splice(i, 1);
+            i--;
+        }
+    }
+
+    requestAnimationFrame(draw);
+}
+
+draw();
+``` 
+
+### Explanation:
+
+>Clear canvas each frame
+
+>Draw each point as glowing cyan circle
+
+>Decrease opacity gradually (t.alpha -= 0.02)
+
+>Remove fully faded points (t.alpha <= 0)
+
+>Use requestAnimationFrame for smooth animation
+
+>Phone-side ghost (phone.html + phone.js)
+
+- HTML:
+
+```HTML
+<script src="/socket.io/socket.io.js"></script>
+<body></body>
+```
+Loads socket.io
+
+Body will contain ghost div
+
+- JS:
+
+```javascript
+const socket = io();
+
+const ghost = document.createElement('div');
+ghost.classList.add('ghost');
+document.body.appendChild(ghost);
+
+socket.on('cursorMove', (data) => {
+    ghost.style.left = data.x + 'px';
+    ghost.style.top = data.y + 'px';
+});
+```
+Connect to socket.io server
+
+Create ghost div dynamically
+
+Update ghost position from desktop cursor
+
+- CSS:
+
+```CSS
+.ghost {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: cyan;
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: 0 0 20px cyan;
+}
+```
+Shows glowing cyan ghost for phone
+
+>pointer-events: none ensures it doesn’t block touch
+
+### Results Week 2
+
+- Implemented smooth fading trail
+- Ghost moves naturally with mouse
+- Phone-side ghost receives desktop cursor data
+- Tested on multiple windows
+
+## AI Usage:
+
+- Helped rewrite trail system for smoother fading
+- Suggested visual effects (glow, trail length, fade speed)
+- Explained how to animate the trail and remove points
+
+## Plan for Week 3:
+
+- Add QR code so users can join the ghost game via phone
+- Connect phone to desktop in real-time to see the cursor
+- Start implementing multi-device interactions
+
+# Week 3
+
+## What I did
+
+* In Week 3, I focused on replacing the ghost cursor with a new image (scared_person.png), making it follow the cursor with a controlled speed, adding random movement when idle, and re-adding the QR code for phone connections.
+
+### Replacing the ghost cursor with scared_person.png
+
+> Step 1: Update HTML
+
+<img id="scaredPerson" src="scared_person.png" alt="Scared Person">
+
+- Replaces the original ghost image with scared_person.png.
+- Allows the new character to follow the cursor while keeping the trail effect.
+
+> Step 2: Update JS to select new cursor
+
+const scaredPerson = document.getElementById('scaredPerson');
+
+This selects the new image in JavaScript for movement.
+
+Making the cursor follow the mouse with controlled speed
+
+> Step 1: Create a position object
+
+```javascript
+let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+let current = { x: mouse.x, y: mouse.y };
+const speed = 0.15; // controls how fast the scared person follows
+```
+- mouse stores the latest cursor position.
+- current stores the current position of the scared person.
+- speed determines movement smoothness (not too fast, not too slow).
+
+> Step 2: Update mouse on movement
+
+```javascript
+document.addEventListener('mousemove', e => {
+    mouse.x = e.clientX - 25;
+    mouse.y = e.clientY - 25;
+});
+```
+Subtract 25 to center the 50px image on the cursor.
+
+> Step 3: Animate movement
+
+```javascript
+function moveCursor() {
+    current.x += (mouse.x - current.x) * speed;
+    current.y += (mouse.y - current.y) * speed;
+    scaredPerson.style.transform = `translate(${current.x}px, ${current.y}px)`;
+    requestAnimationFrame(moveCursor);
+}
+
+moveCursor();
+```
+- Gradually moves the scared person toward the mouse.
+- Creates a smooth following effect using interpolation.
+- Adding random movement when idle
+
+> Step 1: Detect idle movement
+```javascript
+let idleTimer = 0;
+
+document.addEventListener('mousemove', () => idleTimer = 0);
+
+function randomMove() {
+    idleTimer++;
+    if (idleTimer > 200) { // after ~200 frames of inactivity
+        mouse.x = Math.random() * window.innerWidth;
+        mouse.y = Math.random() * window.innerHeight;
+        idleTimer = 0;
+    }
+    requestAnimationFrame(randomMove);
+}
+
+randomMove();
+```
+
+- Moves the scared person randomly if the user does not move the mouse.
+- Makes the animation more dynamic.
+- Trail effect with scared person
+
+> Step 1: Keep the existing trail logic from Week 2
+
+```javascript
 let trail = [];
 const maxTrail = 80;
 const segmentLength = 1;
 const fadeSpeed = 0.05;
-```
 
-Explanation:
-
-* `trail` stores previous cursor positions
-* `maxTrail` limits how long the trail can be
-* `segmentLength` controls how often new trail points are added
-* `fadeSpeed` determines how fast the trail disappears
-
-### Adding trail points
-
-```javascript id="og5y63"
-const last = trail[trail.length - 1];
-
-if (!last || Math.hypot(e.clientX - last.x, e.clientY - last.y) > segmentLength) {
-    trail.push({ x: e.clientX, y: e.clientY, alpha: 1 });
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < trail.length; i++) {
+        const t = trail[i];
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, 12, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 255, 255, ${t.alpha})`;
+        ctx.shadowColor = 'cyan';
+        ctx.shadowBlur = 20;
+        ctx.fill();
+        t.alpha -= 0.02;
+        if (t.alpha <= 0) {
+            trail.splice(i, 1);
+            i--;
+        }
+    }
+    requestAnimationFrame(draw);
 }
+
+draw();
 ```
+- The trail now follows scaredPerson instead of the old ghost.
+- Gives a magical glowing effect as the character moves.
 
-Explanation:
+> Step 2: Push trail points
 
-This checks the distance between the current cursor position and the last trail point.
-
-If the cursor moved far enough, a new trail point is added.
-
-Each point contains:
-
-* `x` coordinate
-* `y` coordinate
-* `alpha` value (opacity)
-
-### Limiting the trail length
-
-```javascript id="9v1h1o"
-if (trail.length > maxTrail) {
-    trail.shift();
+```javascript
+function updateTrail() {
+    const last = trail[trail.length - 1];
+    if (!last || Math.hypot(current.x - last.x, current.y - last.y) > segmentLength) {
+        trail.push({ x: current.x + 25, y: current.y + 25, alpha: 1 });
+    }
+    if (trail.length > maxTrail) trail.shift();
+    requestAnimationFrame(updateTrail);
 }
+
+updateTrail();
 ```
 
-This removes the oldest trail point when the maximum trail length is reached.
+- Ensures the trail is added at the cursor center.
+- Smooth fading follows the scared person’s path.
+- Re-adding QR code
 
-### Drawing the trail
+> Step 1: HTML
 
-The trail is drawn inside a draw function that runs continuously.
+<div id="qrContainer">
+    <h3>Scan to Join</h3>
+    <img id="qrCode" alt="QR Code">
+</div>
 
-```javascript id="u7qk5o"
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-```
+Fixed container with QR code for phone connection.
 
-This clears the canvas each frame before redrawing the trail.
+> Step 2: JS to generate QR
 
-Each trail point is drawn as a glowing circle:
+const qrImg = document.getElementById('qrCode');
+const phoneUrl = "http://YOUR_COMPUTER_IP:3000/phone.html";
 
-```javascript id="v1f65n"
-ctx.beginPath();
-ctx.arc(t.x, t.y, 12, 0, Math.PI * 2);
-ctx.fillStyle = `rgba(0, 255, 255, ${t.alpha})`;
-ctx.shadowColor = 'cyan';
-ctx.shadowBlur = 20;
-ctx.fill();
-```
+QRCode.toDataURL(phoneUrl)
+    .then(url => { qrImg.src = url; })
+    .catch(err => console.error(err));
 
-This creates a glowing cyan trail behind the ghost.
++ Replace YOUR_COMPUTER_IP with your local IP address.
++ Generates the QR code dynamically so phones can join.
 
-### Fading the trail
+### Results Week 3
 
-To create the fading effect I gradually decrease the opacity.
+- Replaced ghost with scared_person.png.
+- Cursor follows mouse smoothly at controlled speed.
+- Random movement implemented when idle.
+- Trail effect works with scared person.
+- QR code added for phone connection.
 
-```javascript id="gbr0m1"
-t.alpha -= 0.02;
+## AI Usage:
 
-if (t.alpha <= 0) {
-    trail.splice(i, 1);
-}
-```
+- Suggested how to interpolate cursor position for smooth movement.
+- Helped implement idle random movement.
+- Explained how to integrate trail with new image.
+- Guided adding QR code back correctly.
 
-When the opacity reaches zero, the trail point is removed.
+## Plan for Week 4:
 
-### Continuous animation
+- Test phone connection with QR code.
+- Improve trail visuals and speed tuning.
+- Add more interactive effects when multiple devices are connected.
 
-```javascript id="qnjhzz"
-requestAnimationFrame(draw);
-```
 
-This repeatedly calls the draw function so the animation runs smoothly.
 
-### Testing
-
-I tested the trail effect several times on the desktop to make sure:
-
-* the ghost moves correctly
-* the trail appears smoothly
-* the trail fades naturally
-
-### Results of Week 2
-
-* Implemented smoother magical trails using fading circles
-* Adjusted trail fade speed so it doesn’t feel like drawing on the screen
-* Tested multiple visual variations of the trail
-* Started thinking about connecting the ghost between multiple devices
-
----
-
-## AI Usage
-
-AI helped during this stage mainly with:
-
-* rewriting the trail system
-* suggesting smoother visual effects
-* explaining how fading animations work
-* debugging issues where the trail did not disappear correctly
-
-I modified several parts of the code:
-
-* changed how trails are drawn (circle size and spacing)
-* adjusted fade timing and trail length
-* changed color and glow intensity to create a more magical effect
-
----
-
-## Plan for Next Week
-
-Next week I plan to:
-
-* complete the phone-side ghost implementation
-* test live communication between devices
-* allow multiple ghosts to appear from different devices
-* potentially add additional visual effects to the trail
