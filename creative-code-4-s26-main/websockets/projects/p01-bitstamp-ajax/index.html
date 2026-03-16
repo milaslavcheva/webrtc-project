@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Bitstamp AJAX</title>
+  </head>
+  <body>
+    <h1>Waiting for trades to happen...</h1>
+    <script>
+    {
+      const $h1 = document.querySelector('h1');
+
+      const apiUrl = `https://cors-anywhere.com/https://www.bitstamp.net/api/v2/ticker/btceur/`;
+
+      const poll = async () => {
+        console.log(`Execute poll`);
+        try {
+          const data = await (await fetch(apiUrl)).json();
+          console.log(data);
+          $h1.innerHTML = `1 BTC = ${new Intl.NumberFormat('nl-BE', { style: 'currency', currency: 'EUR' }).format(data.last)}`;
+        } catch (err) {
+          console.error(err);
+        }
+        setTimeout(() => poll(), 10000);
+      };
+
+      poll();
+
+    }
+    </script>
+  </body>
+</html>
