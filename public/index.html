@@ -3,34 +3,25 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Desktop Ghost</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background: black;
-        }
-
-        #ghost {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            pointer-events: none;
-        }
-
-        #trailCanvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-        }
-    </style>
+    <title>Ghost Chasing</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
     <canvas id="trailCanvas"></canvas>
-    <img id="ghost" src="ghost.png" alt="Ghost">
-    <script src="/desktop.js"></script>
+    <img id="scaredPerson" src="images/scared_person.png" alt="Scared Person">
+    <img id="ghost" src="images/ghost.png" alt="Ghost">
+
+    <!-- QR Waiting Screen -->
+    <div id="qrContainer">
+        <h1 id="gameTitle">Ghost Chasing</h1>
+        <div id="qr"></div>
+        <p id="qrMessage">Scan this QR code to start the game</p>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script src="desktop.js"></script>
 </body>
 
 </html>
