@@ -8,7 +8,6 @@ window.addEventListener('resize', () => {
     canvas.height = window.innerHeight;
 });
 
-// --- Elements ---
 const scared = document.getElementById('scaredPerson');
 const ghost = document.getElementById('ghost');
 const qrContainer = document.getElementById('qrContainer');
@@ -21,39 +20,84 @@ let ghostSpeed = 3;
 let gameStarted = false;
 let gameOver = false;
 
-// --- Hide game elements initially ---
+// Hide game elements at first
 canvas.style.display = 'none';
 scared.style.display = 'none';
 ghost.style.display = 'none';
 
-// --- Generate QR code ---
-const socket = io();
-socket.on('connect', () => {
-    const url = `${new URL(`/phone.html?id=${socket.id}`, window.location)}`;
-    const qr = qrcode(4, 'L');
+// --- Socket.io and WebRTC setup ---
+const socket = io("/");
+let peer = null;
+
+// --- QR + signaling ---
+const buildJoinUrl = () => window.location.origin + "/phone.html?host=" + encodeURIComponent(socket.id);
+
+const renderQr = url => {
+    const qr = qrcode(4, "L");
     qr.addData(url);
     qr.make();
-    qrDiv.innerHTML = qr.createImgTag(4);
-    console.log('Desktop connected. Scan QR to control:', url);
+    qrDiv.innerHTML = qr.createImgTag(5);
+};
+
+socket.on("connect", () => {
+    console.log("Socket connected. Scan QR to control.");
+    qrContainer.style.display = "flex";
+    canvas.style.display = "none";
+    renderQr(buildJoinUrl());
 });
 
-// --- Start game when phone connects ---
-socket.on('phone-connected', () => {
-    console.log('Phone connected, starting game...');
-    startGame();
+socket.on("signal", (peerId, signal, fromId) => {
+    if (!peer) {
+        // Create SimplePeer as initiator
+        peer = new SimplePeer({ initiator: true, trickle: false });
+
+        peer.on("signal", data => {
+            socket.emit("signal", fromId, data); // Send signal back to connecting phone
+        });
+
+        peer.on("connect", () => {
+            console.log("Phone connected!");
+
+            // --- Hide QR code and show game elements ---
+            qrContainer.style.display = "none";
+            canvas.style.display = "block";
+            scared.style.display = "block";
+            ghost.style.display = "block";
+
+            // Start the game loop
+            startGame();
+        });
+
+        peer.on("data", data => {
+            const msg = JSON.parse(data.toString());
+            handleControls(msg);
+        });
+    }
+
+    // Pass signaling data to SimplePeer
+    peer.signal(signal);
 });
 
-// --- Start game function ---
+// --- Handle incoming phone controls ---
+function handleControls({ x, y }) {
+    if (!gameStarted || gameOver) return;
+    scaredPos.x = x * window.innerWidth;
+    scaredPos.y = y * window.innerHeight;
+}
+
+// --- Game Loop ---
+let trail = [];
+const maxTrail = 80;
+
 function startGame() {
-    qrContainer.style.display = 'none';
-    canvas.style.display = 'block';
-    scared.style.display = 'block';
-    ghost.style.display = 'block';
+    qrContainer.style.display = "none";
+    canvas.style.display = "block";
+    scared.style.display = "block";
+    ghost.style.display = "block";
 
     scaredPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     ghostPos = { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight };
 
-    // Use left/top to ensure images appear correctly
     scared.style.left = `${scaredPos.x - 25}px`;
     scared.style.top = `${scaredPos.y - 25}px`;
     ghost.style.left = `${ghostPos.x}px`;
@@ -67,17 +111,6 @@ function startGame() {
     moveGhost();
 }
 
-// --- Receive phone input ---
-socket.on('move', data => {
-    if (!gameStarted || gameOver) return;
-    scaredPos.x = data.x * window.innerWidth;
-    scaredPos.y = data.y * window.innerHeight;
-});
-
-// --- Draw trail ---
-let trail = [];
-const maxTrail = 80;
-
 function drawTrail() {
     if (!gameStarted || gameOver) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -89,23 +122,20 @@ function drawTrail() {
         ctx.beginPath();
         ctx.arc(t.x, t.y, 12, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(0,255,255,${t.alpha})`;
-        ctx.shadowColor = 'cyan';
+        ctx.shadowColor = "cyan";
         ctx.shadowBlur = 20;
         ctx.fill();
         t.alpha -= 0.02;
     }
 
-    // Update scared person position
     scared.style.left = `${scaredPos.x - 25}px`;
     scared.style.top = `${scaredPos.y - 25}px`;
 
     requestAnimationFrame(drawTrail);
 }
 
-// --- Ghost follows scared person ---
 function moveGhost() {
     if (!gameStarted || gameOver) return;
-
     const dx = scaredPos.x - ghostPos.x;
     const dy = scaredPos.y - ghostPos.y;
     const dist = Math.hypot(dx, dy);
@@ -115,45 +145,40 @@ function moveGhost() {
         ghostPos.y += (dy / dist) * ghostSpeed;
     }
 
-    // Update ghost position
     ghost.style.left = `${ghostPos.x}px`;
     ghost.style.top = `${ghostPos.y}px`;
 
-    // Check collision
-    if (dist < 50) {
-        endGame();
-    }
+    if (dist < 50) endGame();
 
     requestAnimationFrame(moveGhost);
 }
 
-// --- End game ---
 function endGame() {
     gameOver = true;
     gameStarted = false;
 
-    canvas.style.display = 'none';
-    scared.style.display = 'none';
-    ghost.style.display = 'none';
+    canvas.style.display = "none";
+    scared.style.display = "none";
+    ghost.style.display = "none";
 
     showGameOver();
 }
 
-// --- Game Over Screen ---
 function showGameOver() {
-    let overlay = document.createElement('div');
-    overlay.id = 'gameOverOverlay';
+    let overlay = document.createElement("div");
+    overlay.id = "gameOverOverlay";
 
-    let msg = document.createElement('h1');
-    msg.textContent = 'Game Over';
+    let msg = document.createElement("h1");
+    msg.textContent = "Game Over";
     overlay.appendChild(msg);
 
-    let btn = document.createElement('button');
-    btn.textContent = 'Restart';
+    let btn = document.createElement("button");
+    btn.textContent = "Restart";
     btn.onclick = () => {
         document.body.removeChild(overlay);
-        qrContainer.style.display = 'flex';
+        qrContainer.style.display = "flex";
         trail = [];
+        if (peer && peer.connected) startGame();
     };
     overlay.appendChild(btn);
 
