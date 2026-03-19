@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ghost Chasing</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <canvas id="trailCanvas"></canvas>
+    <img id="scaredPerson" src="images/scared_person.png" alt="Scared Person">
+    <img id="ghost" src="images/ghost.png" alt="Ghost">
+
+    <div id="qrContainer">
+        <h1 id="gameTitle">Ghost Chasing</h1>
+        <div id="qr"></div>
+        <p id="qrMessage">Scan this QR code to start the game</p>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script src="desktop.js" type="module"></script>
+</body>
+</html>

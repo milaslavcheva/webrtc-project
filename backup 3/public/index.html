@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ghost Chasing</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- QR Scene -->
+    <div id="qrScene">
+        <div id="qrContainer">
+            <h1 id="gameTitle">Ghost Chasing</h1>
+            <div id="qr"></div>
+            <p id="qrMessage">Scan this QR code to start the game</p>
+        </div>
+    </div>
+
+    <!-- Game Scene -->
+    <div id="gameScene" class="hidden">
+        <canvas id="trailCanvas"></canvas>
+        <img id="scaredPerson" src="images/scared_person.png" alt="Scared Person">
+        <img id="ghost" src="images/ghost.png" alt="Ghost">
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.1/simplepeer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"
+        integrity="sha512-ZDSPMa/JM1D+7kdg2x3BsruQ6T/JpJo3jWDWkCZsP+5yVyp1KfESqLI+7RqB5k24F7p2cV7i2YHh/890y6P6Sw=="
+        crossorigin="anonymous"></script>
+    <script type="module" src="desktop.js"></script>
+</body>
+
+</html>
