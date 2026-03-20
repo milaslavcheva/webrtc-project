@@ -69,6 +69,9 @@ document.addEventListener("mouseup", () => lastMouse = null);
 const overlay = document.getElementById("gameOverPhone");
 const restartBtn = document.getElementById("restartBtn");
 
+// Hide overlay initially
+overlay.style.display = "none";
+
 const showRestartButton = () => overlay.style.display = "flex";
 
 restartBtn.addEventListener("click", () => {

@@ -103,6 +103,8 @@ const ctx = canvas.getContext("2d");
 
 const scared = document.getElementById("scaredPerson");
 const ghost = document.getElementById("ghost");
+const coin = document.getElementById("coin");
+const coinNumber = document.getElementById("coinNumber");
 
 let scaredPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 let ghostPos = { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight };
@@ -114,11 +116,64 @@ let trail = [];
 const maxTrail = 80;
 
 canvas.style.display = scared.style.display = ghost.style.display = "none";
+document.getElementById("coinCounter").style.display = "none";
 
 window.addEventListener("resize", () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 });
+
+// ---------------- COINS ----------------
+let coinsCollected = 0;
+const maxCoins = 5;
+let coinActive = false;
+
+function spawnCoin() {
+    if (coinsCollected >= maxCoins) return;
+
+    const padding = 50;
+    const x = Math.random() * (window.innerWidth - padding);
+    const y = Math.random() * (window.innerHeight - padding);
+
+    coin.style.left = `${x}px`;
+    coin.style.top = `${y}px`;
+    coin.style.display = "block";
+    coinActive = true;
+}
+
+function checkCoinCollision() {
+    if (!coinActive) return;
+
+    const scaredRect = scared.getBoundingClientRect();
+    const coinRect = coin.getBoundingClientRect();
+
+    if (
+        scaredRect.left < coinRect.right &&
+        scaredRect.right > coinRect.left &&
+        scaredRect.top < coinRect.bottom &&
+        scaredRect.bottom > coinRect.top
+    ) {
+        coinCollectedFn();
+    }
+}
+
+function coinCollectedFn() {
+    coinsCollected++;
+    coinNumber.textContent = coinsCollected;
+
+    coin.style.display = "none";
+    coinActive = false;
+
+    if (coinsCollected < maxCoins) {
+        setTimeout(spawnCoin, 3000);
+    }
+}
+
+function coinLoop() {
+    if (!gameStarted || gameOver) return;
+    checkCoinCollision();
+    requestAnimationFrame(coinLoop);
+}
 
 // ---------------- START GAME ----------------
 function startGame() {
@@ -127,12 +182,21 @@ function startGame() {
 
     canvas.style.display = scared.style.display = ghost.style.display = "block";
 
+    // Show coin counter when game starts
+    document.getElementById("coinCounter").style.display = "flex";
+
     gameStarted = true;
     gameOver = false;
     trail = [];
 
     scaredPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     ghostPos = { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight };
+
+    // Coins setup
+    coinsCollected = 0;
+    coinNumber.textContent = coinsCollected;
+    spawnCoin();
+    coinLoop();
 
     drawTrail();
     moveGhost();
@@ -198,6 +262,10 @@ function endGame() {
     gameStarted = false;
 
     canvas.style.display = scared.style.display = ghost.style.display = "none";
+    coin.style.display = "none";
+
+    // Hide coin counter on game over
+    document.getElementById("coinCounter").style.display = "none";
 
     showGameOver();
 }
@@ -212,6 +280,5 @@ function showGameOver() {
 
     document.body.appendChild(gameOverOverlay);
 
-    // Notify phone to show restart button
     sendToPeer({ type: "showRestart" });
 }
