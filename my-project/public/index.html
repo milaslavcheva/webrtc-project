@@ -20,24 +20,20 @@
     <!-- GAME -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- Ghost & Player images -->
-    <img id="scaredPerson" src="images/scared_person.png" alt="Scared Person">
-    <img id="ghost" src="images/ghost.png" alt="Ghost">
-    <img id="coin" src="images/coin.png" alt="Coin" style="display:none;">
+    <!-- Images -->
+    <img id="scaredPerson" src="images/scared_person.png">
+    <img id="ghost" src="images/ghost.png">
+    <img id="coin" src="images/coin.png" style="display:none;">
 
-    <!-- Coin counter -->
+    <!-- Coin Counter -->
     <div id="coinCounter">
         <span id="coinNumber">0</span>
-        <img src="images/coin.png" alt="Coin">
+        <img src="images/coin.png">
     </div>
 
-    <!-- Socket.IO -->
     <script src="/socket.io/socket.io.js"></script>
-    <!-- SimplePeer -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.1/simplepeer.min.js"></script>
-    <!-- QR Code generator -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-    <!-- Desktop JS -->
     <script type="module" src="/desktop.js"></script>
 </body>
 
