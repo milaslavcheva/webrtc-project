@@ -15,9 +15,14 @@ const restartBtn = document.getElementById("restartBtn");
 const youWonOverlay = document.getElementById("youWonPhone");
 const restartBtnWon = document.getElementById("restartBtnWon");
 
-// hide both initially
+const getSafeBtn = document.getElementById("getSafeBtn");
+const getOutBtn = document.getElementById("getOutBtn");
+
+// Hide all initially
 gameOverOverlay.style.display = "none";
 youWonOverlay.style.display = "none";
+getSafeBtn.style.display = "none";
+getOutBtn.style.display = "none";
 
 // Peer
 const createPeer = () => {
@@ -30,11 +35,19 @@ const createPeer = () => {
         try {
             const msg = JSON.parse(raw.toString());
 
-            if (msg.type === "showRestart") showGameOver();
-            if (msg.type === "youWon") showYouWon();
+            if (msg.type === "showRestart") gameOverOverlay.style.display = "flex";
+            if (msg.type === "youWon") youWonOverlay.style.display = "flex";
             if (msg.type === "restartAck") {
                 gameOverOverlay.style.display = "none";
                 youWonOverlay.style.display = "none";
+            }
+
+            if (msg.type === "showGetSafeButton") getSafeBtn.style.display = "block";
+            if (msg.type === "hideGetSafeButton") getSafeBtn.style.display = "none";
+            if (msg.type === "showGetOutButton") getOutBtn.style.display = "block";
+            if (msg.type === "hideShelterButtons") {
+                getSafeBtn.style.display = "none";
+                getOutBtn.style.display = "none";
             }
 
         } catch { }
@@ -75,24 +88,14 @@ document.addEventListener("touchmove", e => {
 
 document.addEventListener("touchend", () => lastTouch = null);
 
-// UI FUNCTIONS
-function showGameOver() {
-    gameOverOverlay.style.display = "flex";
-    youWonOverlay.style.display = "none";
-}
-
-function showYouWon() {
-    youWonOverlay.style.display = "flex";
-    gameOverOverlay.style.display = "none";
-}
-
-// Restart buttons
+// Buttons
 restartBtn.onclick = () => {
     gameOverOverlay.style.display = "none";
     sendToPeer({ type: "restart" });
 };
-
 restartBtnWon.onclick = () => {
     youWonOverlay.style.display = "none";
     sendToPeer({ type: "restart" });
 };
+getSafeBtn.onclick = () => sendToPeer({ type: "getSafe" });
+getOutBtn.onclick = () => sendToPeer({ type: "getOut" });

@@ -6,6 +6,14 @@ const $qr = document.querySelector("#qr");
 const $qrCode = document.querySelector("#qrCode");
 const $gameCanvas = document.querySelector("#gameCanvas");
 
+// Game elements
+const scared = document.getElementById("scaredPerson");
+const ghost = document.getElementById("ghost");
+const coin = document.getElementById("coin");
+const coinNumber = document.getElementById("coinNumber");
+const shelter1 = document.getElementById("shelter1");
+const shelter2 = document.getElementById("shelter2");
+
 // WebRTC peer
 let peer = null;
 
@@ -47,7 +55,7 @@ const createPeer = (initiator, remoteId) => {
         try {
             const msg = JSON.parse(raw.toString());
 
-            if (msg.type === "move" && gameStarted && !gameOver) {
+            if (msg.type === "move" && gameStarted && !gameOver && !inShelter) {
                 const speed = 2;
                 scaredPos.x += msg.dx * window.innerWidth * speed;
                 scaredPos.y += msg.dy * window.innerHeight * speed;
@@ -57,6 +65,8 @@ const createPeer = (initiator, remoteId) => {
             }
 
             if (msg.type === "restart") restartGame();
+            if (msg.type === "getSafe") enterShelter();
+            if (msg.type === "getOut") exitShelter();
 
         } catch (err) {
             console.error(err);
@@ -92,27 +102,42 @@ const sendToPeer = msg => {
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-const scared = document.getElementById("scaredPerson");
-const ghost = document.getElementById("ghost");
-const coin = document.getElementById("coin");
-const coinNumber = document.getElementById("coinNumber");
-
 let scaredPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 let ghostPos = { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight };
+
+// Game variables
 let ghostSpeed = 3;
+const speedIncrease = 0.7;
 
 let gameStarted = false;
 let gameOver = false;
+let inShelter = false;
 let trail = [];
 const maxTrail = 80;
 
+// Hide game elements initially
 canvas.style.display = scared.style.display = ghost.style.display = "none";
+coin.style.display = "none";
+shelter1.style.display = shelter2.style.display = "none";
 document.getElementById("coinCounter").style.display = "none";
 
+// Window resize
 window.addEventListener("resize", () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    positionShelters();
 });
+
+// ================= SHELTER POSITIONS =================
+function positionShelters() {
+    const padding = 20;
+    shelter1.style.left = `${padding}px`;
+    shelter1.style.top = `${padding}px`;
+
+    shelter2.style.left = `${window.innerWidth - 100 - padding}px`;
+    shelter2.style.top = `${window.innerHeight - 100 - padding}px`;
+}
+positionShelters();
 
 // ================= COINS =================
 let coinsCollected = 0;
@@ -121,7 +146,6 @@ let coinActive = false;
 
 function spawnCoin() {
     if (coinsCollected >= maxCoins) return;
-
     const padding = 50;
     const x = Math.random() * (window.innerWidth - padding);
     const y = Math.random() * (window.innerHeight - padding);
@@ -133,7 +157,7 @@ function spawnCoin() {
 }
 
 function checkCoinCollision() {
-    if (!coinActive) return;
+    if (!coinActive || inShelter) return;
 
     const scaredRect = scared.getBoundingClientRect();
     const coinRect = coin.getBoundingClientRect();
@@ -152,10 +176,11 @@ function coinCollectedFn() {
     coinsCollected++;
     coinNumber.textContent = coinsCollected;
 
+    ghostSpeed += speedIncrease;
+
     coin.style.display = "none";
     coinActive = false;
 
-    // WIN CONDITION
     if (coinsCollected === maxCoins) {
         winGame();
         return;
@@ -175,11 +200,14 @@ function startGame() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    canvas.style.display = scared.style.display = ghost.style.display = "block";
+    // Show game elements
+    canvas.style.display = scared.style.display = ghost.style.display =
+        shelter1.style.display = shelter2.style.display = "block";
     document.getElementById("coinCounter").style.display = "flex";
 
     gameStarted = true;
     gameOver = false;
+    inShelter = false;
     trail = [];
 
     ghostSpeed = 3;
@@ -197,18 +225,15 @@ function startGame() {
     moveGhost();
 }
 
-// ================= RESTART (FIXED) =================
+// ================= RESTART =================
 function restartGame() {
-    // Remove Game Over overlay safely
     const go = document.getElementById("gameOverOverlay");
     if (go) go.remove();
 
-    // Remove You Won overlay safely
     const yw = document.getElementById("youWonOverlay");
     if (yw) yw.remove();
 
     startGame();
-
     sendToPeer({ type: "restartAck" });
 }
 
@@ -238,22 +263,38 @@ function drawTrail() {
 }
 
 // ================= GHOST =================
+let ghostRandomTarget = null;
+
 function moveGhost() {
     if (!gameStarted || gameOver) return;
 
-    const dx = scaredPos.x - ghostPos.x;
-    const dy = scaredPos.y - ghostPos.y;
-    const dist = Math.hypot(dx, dy);
-
-    if (dist > 1) {
+    if (inShelter) {
+        // Ghost random movement
+        if (!ghostRandomTarget || Math.hypot(ghostRandomTarget.x - ghostPos.x, ghostRandomTarget.y - ghostPos.y) < 10) {
+            ghostRandomTarget = {
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight
+            };
+        }
+        const dx = ghostRandomTarget.x - ghostPos.x;
+        const dy = ghostRandomTarget.y - ghostPos.y;
+        const dist = Math.hypot(dx, dy);
         ghostPos.x += (dx / dist) * ghostSpeed;
         ghostPos.y += (dy / dist) * ghostSpeed;
+    } else {
+        // Chase player
+        const dx = scaredPos.x - ghostPos.x;
+        const dy = scaredPos.y - ghostPos.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist > 1) {
+            ghostPos.x += (dx / dist) * ghostSpeed;
+            ghostPos.y += (dy / dist) * ghostSpeed;
+        }
+        if (dist < 50) endGame();
     }
 
     ghost.style.left = `${ghostPos.x}px`;
     ghost.style.top = `${ghostPos.y}px`;
-
-    if (dist < 50) endGame();
 
     requestAnimationFrame(moveGhost);
 }
@@ -265,6 +306,7 @@ function endGame() {
 
     canvas.style.display = scared.style.display = ghost.style.display = "none";
     coin.style.display = "none";
+    shelter1.style.display = shelter2.style.display = "none";
     document.getElementById("coinCounter").style.display = "none";
 
     showGameOver();
@@ -290,6 +332,7 @@ function winGame() {
 
     canvas.style.display = scared.style.display = ghost.style.display = "none";
     coin.style.display = "none";
+    shelter1.style.display = shelter2.style.display = "none";
     document.getElementById("coinCounter").style.display = "none";
 
     const overlay = document.createElement("div");
@@ -302,4 +345,64 @@ function winGame() {
     document.body.appendChild(overlay);
 
     sendToPeer({ type: "youWon" });
+}
+
+// ================= SHELTER LOGIC =================
+function checkShelterProximity() {
+    if (inShelter || !gameStarted || gameOver) {
+        sendToPeer({ type: "hideGetSafeButton" });
+        return;
+    }
+
+    const scaredRect = scared.getBoundingClientRect();
+    const shelters = [shelter1, shelter2];
+    let nearShelter = false;
+
+    for (let s of shelters) {
+        const sRect = s.getBoundingClientRect();
+        const dist = Math.hypot(
+            (scaredRect.left + 25) - (sRect.left + 40),
+            (scaredRect.top + 25) - (sRect.top + 40)
+        );
+        if (dist < 80) {
+            nearShelter = true;
+            break;
+        }
+    }
+
+    if (nearShelter) {
+        sendToPeer({ type: "showGetSafeButton" });
+    } else {
+        sendToPeer({ type: "hideGetSafeButton" });
+    }
+}
+setInterval(checkShelterProximity, 100);
+
+function enterShelter() {
+    const shelters = [shelter1, shelter2];
+    let closest = shelters[0];
+    let minDist = Infinity;
+    const scaredRect = scared.getBoundingClientRect();
+    for (let s of shelters) {
+        const sRect = s.getBoundingClientRect();
+        const dist = Math.hypot(
+            (scaredRect.left + 25) - (sRect.left + 40),
+            (scaredRect.top + 25) - (sRect.top + 40)
+        );
+        if (dist < minDist) {
+            minDist = dist;
+            closest = s;
+        }
+    }
+    // Snap player to shelter
+    scaredPos.x = parseFloat(closest.style.left) + 40;
+    scaredPos.y = parseFloat(closest.style.top) + 40;
+
+    inShelter = true;
+    sendToPeer({ type: "showGetOutButton" });
+}
+
+function exitShelter() {
+    inShelter = false;
+    sendToPeer({ type: "hideShelterButtons" });
 }
