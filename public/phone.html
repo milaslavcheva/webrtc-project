@@ -3,30 +3,48 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Phone Ghost</title>
-    <script src="/socket.io/socket.io.js"></script>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background: black;
-        }
-
-        .ghost {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            background: cyan;
-            border-radius: 50%;
-            pointer-events: none;
-            box-shadow: 0 0 20px cyan;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Controller</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
-    <script src="phone.js"></script>
+    <main>
+
+        <section id="controllerScene">
+            <h1>Phone Controller</h1>
+            <pre id="log"></pre>
+
+            <p id="instructionText">
+                Move your finger on the screen to control the player.
+            </p>
+        </section>
+
+        <section id="gameOverScene">
+            <div id="gameOverPhone">
+                <h1>Game Over</h1>
+                <button id="restartBtn">Restart</button>
+            </div>
+        </section>
+
+        <section id="youWonScene">
+            <div id="youWonPhone">
+                <h1>You Won!</h1>
+                <button id="restartBtnWon">Restart</button>
+            </div>
+        </section>
+
+        <section id="actionScene">
+            <button id="getSafeBtn">Get Safe</button>
+            <button id="getOutBtn">Get Out</button>
+        </section>
+
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.1/simplepeer.min.js"></script>
+    <script src="/phone.js"></script>
 </body>
 
 </html>

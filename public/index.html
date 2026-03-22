@@ -3,34 +3,43 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Desktop Ghost</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background: black;
-        }
-
-        #ghost {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            pointer-events: none;
-        }
-
-        #trailCanvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-        }
-    </style>
+    <title>Ghost Chasing</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-    <canvas id="trailCanvas"></canvas>
-    <img id="ghost" src="ghost.png" alt="Ghost">
-    <script src="/desktop.js"></script>
+
+    <main>
+        <section id="qrScene">
+            <div id="qr">
+                <div class="qr-container">
+                    <h1>Ghost Chasing</h1>
+                    <div id="qrCode"></div>
+                    <p>Scan the QR code to start the game</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="gameScene">
+            <canvas id="gameCanvas"></canvas>
+            <img id="scaredPerson" src="images/scared_person.png">
+            <img id="ghost" src="images/ghost.png">
+            <img id="coin" src="images/coin.png" style="display:none;">
+            <img id="shelter1" src="images/shelter.png">
+            <img id="shelter2" src="images/shelter.png">
+
+            <div id="coinCounter">
+                <span id="coinNumber">0</span>
+                <img src="images/coin.png">
+            </div>
+        </section>
+
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.1/simplepeer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script type="module" src="/desktop.js"></script>
 </body>
 
 </html>
