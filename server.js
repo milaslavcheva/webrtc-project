@@ -15,7 +15,7 @@ if (isDevelopment) {
 const server = require(isDevelopment ? 'https' : 'http').Server(options, app);
 const port = process.env.PORT || 443;
 
-app.use(express.static('public'));
+app.use(express.static("public"));
 
 server.listen(port, () => {
     console.log(`App listening on port ${port}!`);
